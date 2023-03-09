@@ -19,7 +19,7 @@ Danny has shared with you 3 key datasets for this case study:
 * members
 You can inspect the entity relationship diagram and example data below.
 
-image.png
+![image](https://user-images.githubusercontent.com/103412614/224003426-21b94143-7389-45e9-83dd-50c6b54b0235.png)
 
 ### Table 1: sales
 The sales table captures all customer_id level purchases with an corresponding order_date and product_id information for when and what menu items were ordered.
