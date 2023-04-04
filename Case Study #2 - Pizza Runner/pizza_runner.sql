@@ -113,28 +113,3 @@ VALUES
   (10, 'Salami'),
   (11, 'Tomatoes'),
   (12, 'Tomato Sauce');
-  
- 
- UPDATE pizza_runner.runner_orders 
- SET pickup_time=NULL 
- WHERE pickup_time='null';
- 
- UPDATE pizza_runner.runner_orders 
- SET distance=NULL 
- WHERE distance='null';
- 
- UPDATE pizza_runner.runner_orders 
- SET duration=NULL 
- WHERE duration='null';
- 
- UPDATE pizza_runner.runner_orders 
- SET cancellation=NULL 
- WHERE cancellation='null' or cancellation='NaN';
- 
- UPDATE pizza_runner.customer_orders 
- SET extras=NULL 
- WHERE extras='null' or extras='NaN';
- 
- UPDATE pizza_runner.customer_orders 
- SET exclusions=NULL 
- WHERE exclusions='null';
