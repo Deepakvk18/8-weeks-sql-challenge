@@ -161,7 +161,7 @@ SELECT
 FROM pizza_runner.customer_orders
 GROUP BY day_of_week
 ORDER BY day_of_week;
-
+```
 | day_of_week | pizzas_volume |
 | ----------- | ------------- |
 | fri         | 1             |
