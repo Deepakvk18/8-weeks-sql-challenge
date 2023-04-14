@@ -4,15 +4,19 @@ The following are open ended questions which might be asked during a technical i
 ## 1. How would you calculate the rate of growth for Foodie-Fi?
 
 <br/>
+
 ## 2. What key metrics would you recommend Foodie-Fi management to track over time to assess performance of their overall business?
 
 <br/>
+
 ## 3. What are some key customer journeys or experiences that you would analyse further to improve customer retention?
 
 <br/>
+
 ## 4. If the Foodie-Fi team were to create an exit survey shown to customers who wish to cancel their subscription, what questions would you include in the survey?
 
 <br/>
+
 ## 5. What business levers could the Foodie-Fi team use to reduce the customer churn rate? How would you validate the effectiveness of your ideas?
 
 <br/>
