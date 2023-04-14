@@ -29,7 +29,7 @@ When customers churn - they will keep their access until the end of their curren
 
 ## Entity Relationship Diagram 📊🔍
 
-image.png
+![image](https://user-images.githubusercontent.com/103412614/231965939-07c38215-6c45-429e-8c5f-2c518ece3c28.png)
 
 
 
