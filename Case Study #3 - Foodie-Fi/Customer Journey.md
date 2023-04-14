@@ -75,7 +75,7 @@ For example, let us look at the journey of Customer with customer id 1:
 | 1           | trial         | 2020-08-01 |
 | 1           | basic monthly | 2020-08-08 |
 
-        * He started off with free trial and probably liked the product so he purchased the basic monthly pack straight away.
+* He started off with free trial and probably liked the product so he purchased the basic monthly pack straight away.
 <br/>
 
 | customer_id | plan_name     | start_date |
@@ -83,16 +83,18 @@ For example, let us look at the journey of Customer with customer id 1:
 | 2           | trial         | 2020-09-20 |
 | 2           | pro annual    | 2020-09-27 |
 
-        * On the other hand, customers like 2 loved the product and purchased the most expensive package after the free trial
+* On the other hand, customers like 2 loved the product and purchased the most expensive package after the free trial
 
 <br/>
+
 | customer_id | plan_name     | start_date |
 | ----------- | ------------- | ---------- |
 | 11          | trial         | 2020-11-19 |
 | 11          | churn         | 2020-11-26 |
 
-        * There will also be people like 3, who disliked the product after free trial and so they did not decide to purchase the subscription
+* There will also be customers like 3, who disliked the product after free trial and so they did not decide to purchase the subscription
 <br/>
+
 | customer_id | plan_name     | start_date |
 | ----------- | ------------- | ---------- |
 | 13          | trial         | 2020-12-15 |
@@ -105,17 +107,20 @@ For example, let us look at the journey of Customer with customer id 1:
 | 19          | pro monthly   | 2020-06-29 |
 | 19          | pro annual    | 2020-08-29 |
         
-        * People like 13, 16 & 19 tend to go sequentially to decide to purchase the plans each time they feel like the service provides value to them
+* Customers like 13, 16 & 19 tend to go sequentially to decide to purchase the plans each time they feel like the service provides value to them
 <br/>
+
 | customer_id | plan_name     | start_date |
 | ----------- | ------------- | ---------- |
 | 15          | trial         | 2020-03-17 |
 | 15          | pro monthly   | 2020-03-24 |
 | 15          | churn         | 2020-04-29 |
 
-        * 15 on the other hand, decided that the service is not useful to him/her depending on the service provided by Foodie fi.
+* 15 on the other hand, decided that the service is not useful to him/her depending on the service provided by Foodie fi.
 <br/>
 
 ### What does a customer journey looks like?
 
 ![image](https://user-images.githubusercontent.com/103412614/231981572-1ad8c4c2-c6b1-4295-9837-41bd37266401.png)
+
+Thus, people upgrade or downgrade their plan depending upon the quality of the service provided.
