@@ -34,4 +34,4 @@ Danny created Foodie-Fi with a data driven mindset and wanted to ensure all futu
 ![image](https://user-images.githubusercontent.com/103412614/231965939-07c38215-6c45-429e-8c5f-2c518ece3c28.png)
 
 
-
+For more Details: https://8weeksqlchallenge.com/case-study-3/
