@@ -1,0 +1,168 @@
+-- A. Customer Journey
+-- Based off the 8 sample customers provided in the sample from the subscriptions table, write a brief description about each customer’s onboarding journey.
+
+-- Try to keep it as short as possible - you may also want to run some sort of join to make your explanations a bit easier!
+
+-- B. Data Analysis Questions
+-- How many customers has Foodie-Fi ever had?
+SELECT 
+	COUNT(DISTINCT customer_id) AS num_customers
+FROM foodie_fi.subscriptions;    
+
+-- What is the monthly distribution of trial plan start_date values for our dataset - use the start of the month as the group by value
+SELECT 
+	TO_CHAR(start_date, 'Month') AS month_name,
+    COUNT(DISTINCT customer_id) AS num_trial_start
+FROM foodie_fi.subscriptions
+WHERE plan_id=0
+GROUP BY month_name, EXTRACT(MONTH FROM start_date)
+ORDER BY EXTRACT(MONTH FROM start_date);
+
+-- What plan start_date values occur after the year 2020 for our dataset? Show the breakdown by count of events for each plan_name
+SELECT
+	plan_name,
+    COUNT(DISTINCT customer_id) AS num_customers
+FROM foodie_fi.subscriptions s 
+	JOIN foodie_fi.plans p ON p.plan_id=s.plan_id
+WHERE EXTRACT(YEAR FROM start_date) > 2020
+GROUP BY plan_name, p.plan_id
+ORDER BY p.plan_id;
+
+-- What is the customer count and percentage of customers who have churned rounded to 1 decimal place?
+WITH churners AS(
+  SELECT
+      (SELECT COUNT(DISTINCT customer_id) FROM foodie_fi.subscriptions) AS total,
+      COUNT(DISTINCT customer_id) AS churned
+  FROM foodie_fi.subscriptions
+  WHERE plan_id=4)
+SELECT *,
+	ROUND(churned * 100.0/total, 1) AS churn_rate
+FROM churners;
+    
+-- How many customers have churned straight after their initial free trial - what percentage is this rounded to the nearest whole number?
+WITH customer_plans AS(
+  SELECT 
+  	customer_id,
+  	start_date,
+  	plan_id,
+  	LEAD(plan_id) OVER(PARTITION BY customer_id ORDER BY start_date) AS next_plan_id
+  FROM foodie_fi.subscriptions),
+  churners AS(
+    SELECT
+    	(SELECT COUNT(DISTINCT(customer_id)) AS churned_after_trial FROM customer_plans WHERE plan_id=0 AND next_plan_id=4) AS churners_after_trial,
+    (SELECT COUNT(DISTINCT(customer_id)) AS churned_after_trial FROM foodie_fi.subscriptions WHERE plan_id=4) AS total_churners,
+    (SELECT COUNT(DISTINCT customer_id) FROM foodie_fi.subscriptions) AS total_cust)
+SELECT 
+	total_cust,
+    total_churners,
+    churners_after_trial,
+    ROUND(100.0 * churners_after_trial/total_churners) AS pct_trial_churn_churners,
+    ROUND(100.0 * churners_after_trial/total_cust) AS pct_trial_churn_total
+FROM churners;
+
+-- What is the number and percentage of customer plans after their initial free trial?
+WITH next_plan AS(
+  SELECT
+  	customer_id,
+  	plan_id,
+  	LEAD(plan_id) OVER(PARTITION BY customer_id ORDER BY start_date) AS next_plan
+  FROM foodie_fi.subscriptions),
+ customers AS(
+  SELECT
+    next_plan,
+    COUNT(*) AS num_customers
+  FROM next_plan
+  WHERE plan_id=0
+  GROUP BY next_plan)
+SELECT
+	plan_name,
+    num_customers,
+	ROUND(num_customers * 100.0/(SELECT SUM(num_customers) FROM customers), 1) AS pct_customers 
+FROM customers c
+	JOIN foodie_fi.plans p ON c.next_plan=p.plan_id;
+
+-- What is the customer count and percentage breakdown of all 5 plan_name values at 2020-12-31?
+WITH latest_plans AS(
+  SELECT
+      *,
+      ROW_NUMBER() OVER(PARTITION BY customer_id ORDER BY start_date DESC) AS row_num
+  FROM foodie_fi.subscriptions
+  WHERE start_date < '01-01-2021')
+SELECT
+    plan_name,
+    COUNT(*) AS num_customers,
+    ROUND(100.0 * COUNT(*)/(SELECT COUNT(*) FROM foodie_fi.subscriptions), 2) AS pct_customers
+FROM latest_plans d
+    JOIN foodie_fi.plans p ON p.plan_id=d.plan_id
+WHERE row_num=1
+GROUP BY plan_name, p.plan_id
+ORDER BY p.plan_id;
+
+-- How many customers have upgraded to an annual plan in 2020?
+SELECT
+	COUNT(DISTINCT customer_id) AS upgraded_to_annual_in_2020
+FROM foodie_fi.subscriptions 
+WHERE EXTRACT(YEAR FROM start_date)=2020
+		AND plan_id=3;
+
+-- How many days on average does it take for a customer to an annual plan from the day they join Foodie-Fi?
+SELECT
+	ROUND(AVG(s2.start_date - s1.start_date), 2) AS avg_days_from_trial_to_annual
+FROM foodie_fi.subscriptions s1 
+	JOIN foodie_fi.subscriptions s2 ON s1.customer_id=s2.customer_id
+    AND s1.plan_id=0 AND s2.plan_id=3;
+
+
+-- Can you further breakdown this average value into 30 day periods (i.e. 0-30 days, 31-60 days etc)
+WITH average AS(
+  SELECT
+      s2.start_date - s1.start_date AS days_from_trial_to_annual
+  FROM foodie_fi.subscriptions s1 
+      JOIN foodie_fi.subscriptions s2 ON s1.customer_id=s2.customer_id
+      AND s1.plan_id=0 AND s2.plan_id=3),
+  grouped AS(
+  SELECT
+    *,
+    CASE WHEN days_from_trial_to_annual >= 0 AND days_from_trial_to_annual <= 30 THEN '0-30'
+    	WHEN days_from_trial_to_annual >= 31 AND days_from_trial_to_annual <= 60 THEN '31-60'
+    	WHEN days_from_trial_to_annual >= 61 AND days_from_trial_to_annual <= 90 THEN '61-90'
+    	WHEN days_from_trial_to_annual >= 91 AND days_from_trial_to_annual <= 120 THEN '90-120'
+    	WHEN days_from_trial_to_annual >= 121 AND days_from_trial_to_annual <=150 THEN '121-150'
+    	WHEN days_from_trial_to_annual >= 151 THEN '>150' END AS grp
+  FROM average)
+SELECT
+	grp AS days_from_trial_to_annual,
+    COUNT(grp) AS num_customers
+FROM grouped
+GROUP BY grp;
+
+-- How many customers downgraded from a pro monthly to a basic monthly plan in 2020?
+WITH next_cte AS(
+  SELECT 
+  	*,
+  	LEAD(plan_id) OVER(PARTITION BY customer_id ORDER BY start_date) AS next_plan,
+  	LEAD(start_date) OVER(PARTITION BY customer_id ORDER BY start_date) AS next_date
+  FROM foodie_fi.subscriptions)
+SELECT
+	COUNT(DISTINCT customer_id) AS downgraded_from_pro_to_basic
+FROM next_cte
+WHERE plan_id=2 AND next_plan=1
+		AND EXTRACT(YEAR FROM start_date)=2020 AND EXTRACT(YEAR FROM next_date)=2020;
+
+-- C. Challenge Payment Question
+-- The Foodie-Fi team wants you to create a new payments table for the year 2020 that includes amounts paid by each customer in the subscriptions table with the following requirements:
+
+-- monthly payments always occur on the same day of month as the original start_date of any monthly paid plan
+-- upgrades from basic to monthly or pro plans are reduced by the current paid amount in that month and start immediately
+-- upgrades from pro monthly to pro annual are paid at the end of the current billing period and also starts at the end of the month period
+-- once a customer churns they will no longer make payments
+-- Example outputs for this table might look like the following:
+
+-- D. Outside The Box Questions
+-- The following are open ended questions which might be asked during a technical interview for this case study - there are no right or wrong answers, but answers that make sense from both a technical and a business perspective make an amazing impression!
+
+-- How would you calculate the rate of growth for Foodie-Fi?
+-- What key metrics would you recommend Foodie-Fi management to track over time to assess performance of their overall business?
+-- What are some key customer journeys or experiences that you would analyse further to improve customer retention?
+-- If the Foodie-Fi team were to create an exit survey shown to customers who wish to cancel their subscription, what questions would you include in the survey?
+-- What business levers could the Foodie-Fi team use to reduce the customer churn rate? How would you validate the effectiveness of your ideas?
