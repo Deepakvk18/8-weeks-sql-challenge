@@ -1,5 +1,4 @@
 # Case Study #3 - Foodie-Fi 🍔📺
-![image](https://user-images.githubusercontent.com/103412614/231967375-ba7a1440-8026-474a-bf90-769d6905ebb1.png)
 
 
 ## Introduction 🎬
