@@ -117,3 +117,5 @@ For example, let us look at the journey of Customer with customer id 1:
 <br/>
 
 ### What does a customer journey looks like?
+
+![image](https://user-images.githubusercontent.com/103412614/231981572-1ad8c4c2-c6b1-4295-9837-41bd37266401.png)
