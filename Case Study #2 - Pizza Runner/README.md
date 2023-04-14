@@ -29,6 +29,7 @@ Each pizza_id has a standard set of toppings which are used as part of the pizza
 This table contains all of the topping_name values with their corresponding topping_id value. 🌶️🧅🍍🥬
 
 ## Entity Relationship Diagram
+![image](https://user-images.githubusercontent.com/103412614/232027579-b22a6df7-3bb2-4640-9c7c-7846f3766729.png)
 
 
 For more details: https://8weeksqlchallenge.com/case-study-2/
