@@ -67,7 +67,7 @@ subscription_dates AS(
         plan_id,
         start_date,
         CASE
-            WHEN plan_id=3 THEN ARRAY(SELECT generate_series SERIES FROM GENERATE_SERIES(start_date, plan_end_date, INTERVAL '1 YEAR'))
+            WHEN plan_id=3 THEN ARRAY(SELECT generate_series FROM GENERATE_SERIES(start_date, plan_end_date, INTERVAL '1 YEAR'))
             ELSE ARRAY(SELECT generate_series FROM GENERATE_SERIES(start_date, plan_end_date, INTERVAL '1 MONTH')) END AS sub_dates
     FROM extracted_end_date),
 subscriptions AS(
