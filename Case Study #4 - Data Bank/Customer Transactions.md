@@ -146,9 +146,9 @@ CREATE TEMP table dates AS(
 
       SELECT
           customer_id,
-          (DATE_TRUNC('month', month_end) + INTERVAL '1 MONTH' - INTERVAL '1 DAY') ::DATE AS month_end
+          (DATE_TRUNC('month', month_end) + INTERVAL '2 MONTH' - INTERVAL '1 DAY') ::DATE AS month_end
       FROM required_dates
-      WHERE DATE_TRUNC('month', month_end) + INTERVAL '1 MONTH' - INTERVAL '1 DAY' <= '2020-04-30')
+      WHERE DATE_TRUNC('month', month_end) + INTERVAL '2 MONTH' - INTERVAL '1 DAY' <= '2020-04-30')
 
   SELECT * FROM required_dates ORDER BY customer_id);
 
