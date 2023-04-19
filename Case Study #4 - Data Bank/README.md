@@ -32,7 +32,8 @@ This random distribution changes frequently to reduce the risk of hackers gettin
 
 This table stores all customer deposits, withdrawals and purchases made using their Data Bank debit card. 💸💳
 
-Entity Relationship Diagram 📈💻🔍
+## Entity Relationship Diagram 📈💻🔍
+![image](https://user-images.githubusercontent.com/103412614/233050636-8b245851-fdd2-496d-a939-8863fa3199ee.png)
 
 For more details, check out the link below! 🔗
 
