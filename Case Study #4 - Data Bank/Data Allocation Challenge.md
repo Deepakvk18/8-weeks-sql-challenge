@@ -154,10 +154,10 @@ ORDER BY month_num;
 ```
 | month_num | data_req   |
 |-----------|------------|
-| 1         | 296067.19  |
-| 2         | 281875.33  |
-| 3         | 188440.61  |
-| 4         | 23890.65   |
+| 1         | 301748.19  |
+| 2         | 326470.95  |
+| 3         | 346418.84  |
+| 4         | 333960.65  |
 
 <br/>
 
@@ -185,75 +185,83 @@ WITH net_txn AS(
     GROUP BY customer_id, month_num)
 SELECT
 	month_num,
-    SUM(COALESCE(max_data, 0)) AS data_req
+    SUM(CASE WHEN max_data > 0 THEN max_data ELSE 0 END) AS data_req
 FROM max_data_req
 GROUP BY month_num
 ORDER BY month_num;
 ```
 | month_num | data_req |
 |-----------|----------|
-| 1         | 351521   |
-| 2         | 230473   |
-| 3         | 109155   |
-| 4         | -78991   |
+| 1         | 356618   |
+| 2         | 352135   |
+| 3         | 346904   |
+| 4         | 183192   |
 
 <br/>
 
-### minimum, average and maximum values of the running balance for each customer
-(Need to edit the query)
+### minimum, average and maximum values of the daily running balance for each customer 
 ```sql
-WITH net_txn AS(
+WITH RECURSIVE dates AS(
   SELECT
   	customer_id,
-  	txn_date,
- 	CASE WHEN txn_type='deposit' THEN txn_amount ELSE -txn_amount END AS txn_net_amt
-  FROM data_bank.customer_transactions),
+    '2020-01-01'::DATE AS txn_date
+  FROM data_bank.customer_transactions
+  
+  UNION
+  
+  SELECT
+  	customer_id,
+  	(txn_date::DATE + INTERVAL '1 DAY')::DATE AS txn_date
+  FROM dates
+  WHERE txn_date < '2020-04-30'),
+  net_transaction AS(
+    SELECT
+    	customer_id,
+    	txn_date,
+    	CASE WHEN txn_type='deposit' THEN txn_amount ELSE -txn_amount END AS cashflow
+    FROM data_bank.customer_transactions),
   running_balance AS(
     SELECT
-      customer_id,
-      txn_date,
-      SUM(txn_net_amt) OVER(PARTITION BY customer_id ORDER BY txn_date) AS running_bal
-    FROM net_txn)
-SELECT 
+    	customer_id,
+    	txn_date,
+    	SUM(cashflow) OVER(PARTITION BY customer_id ORDER BY txn_date) AS balance_on_date
+    FROM net_transaction),
+  total_bal AS(
+    SELECT
+    	customer_id,
+    	txn_date,
+   		balance_on_date
+    FROM running_balance RIGHT JOIN dates USING(customer_id, txn_date)),
+  running_bal AS(
+    SELECT
+    	customer_id,
+    	txn_date,
+    	COALESCE(balance_on_date, FIRST_VALUE(balance_on_date) OVER(PARTITION BY grouped ORDER BY txn_date)) AS balance_on_date
+	FROM (SELECT customer_id,
+          		txn_date,
+          		balance_on_date,
+          		SUM(balance_on_date) OVER(PARTITION BY customer_id ORDER BY txn_date) AS grouped FROM total_bal) t)
+SELECT
 	customer_id,
-    MIN(running_bal) AS min_balance,
-    MAX(running_bal) AS max_balance,
-    ROUND(AVG(running_bal), 2) AS avg_balance
-FROM running_balance
+    MIN(CASE WHEN balance_on_date > 0 THEN balance_on_date ELSE NULL END) AS min_balance,
+    ROUND(AVG(CASE WHEN balance_on_date > 0 THEN balance_on_date ELSE 0 END), 2) AS avg_balance,
+    MAX(CASE WHEN balance_on_date > 0 THEN balance_on_date ELSE NULL END) AS max_balance
+FROM running_bal
 GROUP BY customer_id
-ORDER BY customer_id;   
+ORDER BY customer_id; 
 ```
 Sample Answer:-
-| customer_id | min_balance | max_balance | avg_balance |
+| customer_id | min_balance | avg_balance | max_balance |
 | ----------- | ----------- | ----------- | ----------- |
-| 1           | -640        | 312         | -151.00     |
-| 2           | 549         | 610         | 579.50      |
-| 3           | -1222       | 144         | -732.40     |
-| 4           | 458         | 848         | 653.67      |
-| 5           | -2413       | 1780        | -135.45     |
-| 6           | -552        | 2197        | 624.00      |
-| 7           | 887         | 3539        | 2268.69     |
-| 8           | -1029       | 1363        | 173.70      |
-| 9           | -91         | 2030        | 1021.70     |
-| 10          | -5090       | 556         | -2229.83    |
+| 1           | 12          | 164.03      | 312         |
+| 2           | 549         | 559.08      | 610         |
+| 3           | 124         | 42.21       | 144         |
+| 4           | 458         | 701.81      | 848         |
+| 5           | 68          | 473.57      | 1780        |
+| 6           | 11          | 562.02      | 2197        |
+| 7           | 887         | 1818.89     | 3539        |
+| 8           | 207         | 185.36      | 1363        |
+| 9           | 608         | 885.38      | 2030        |
+| 10          | 556         | 9.04        | 556         |
 
 <br/>
-
-
-```sql
-SELECT
-	EXTRACT(MONTH FROM txn_date) AS month_num,
-    SUM(CASE WHEN txn_type='deposit' THEN txn_amount ELSE 0 END) AS deposit, 
-    SUM(CASE WHEN txn_type='withdrawal' THEN txn_amount ELSE 0 END) AS withdraw,
-    SUM(CASE WHEN txn_type='purchase' THEN txn_amount ELSE 0 END) AS purchase
-FROM data_bank.customer_transactions
-GROUP BY month_num
-ORDER BY month_num;
-```
-
-| month_num | deposit | withdraw | purchase |
-|-----------|---------|----------|----------|
-| 1         | 437894  | 159042   | 152761   |
-| 2         | 357040  | 244612   | 252227   |
-| 3         | 390103  | 284073   | 276914   |
-| 4         | 174131  | 105276   | 124635   |
