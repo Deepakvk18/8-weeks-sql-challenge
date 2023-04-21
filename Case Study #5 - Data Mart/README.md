@@ -24,5 +24,7 @@ The columns are pretty self-explanatory based on the column names but here are s
         Each record in the dataset is related to a specific aggregated slice of the underlying sales data rolled up into a week_date value which represents the start of the sales week. 📅
 
 # Entity Relationship Diagram 📊
+![image](https://user-images.githubusercontent.com/103412614/233623221-3dce31bf-528d-4963-b323-0cada815e00b.png)
+
 
 For more details, visit: https://8weeksqlchallenge.com/case-study-5/
